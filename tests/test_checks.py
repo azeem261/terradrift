@@ -63,6 +63,44 @@ def test_security_group_no_drift_when_matching():
 
 
 @mock_aws
+def test_security_group_reference_drift_is_detected():
+    """Regression test for the real gap found in review: the original
+    check only compared CIDR blocks, so a rule referencing another
+    security group (a very common real-world pattern, e.g. "allow from
+    the app-tier SG") was invisible to it — neither an added nor a
+    removed SG-reference rule would ever show up as drift. This proves
+    it now does."""
+    ec2 = boto3.client("ec2", region_name="us-east-1")
+    vpc = ec2.create_vpc(CidrBlock="10.0.0.0/16")["Vpc"]["VpcId"]
+    db_sg = ec2.create_security_group(GroupName="db", Description="db", VpcId=vpc)
+    db_sg_id = db_sg["GroupId"]
+    other_sg = ec2.create_security_group(GroupName="mystery-app", Description="mystery", VpcId=vpc)
+    other_sg_id = other_sg["GroupId"]
+
+    # Terraform state expects no ingress at all
+    state_sgs = [{
+        "address": "aws_security_group.db",
+        "values": {"id": db_sg_id, "ingress": []},
+    }]
+
+    # Live AWS has a rule referencing a completely different SG — added outside Terraform
+    ec2.authorize_security_group_ingress(
+        GroupId=db_sg_id,
+        IpPermissions=[{
+            "IpProtocol": "tcp", "FromPort": 5432, "ToPort": 5432,
+            "UserIdGroupPairs": [{"GroupId": other_sg_id}],
+        }],
+    )
+
+    findings = check_security_groups(state_sgs, ec2)
+
+    assert len(findings) == 1
+    assert findings[0].field == "ingress"
+    assert other_sg_id in findings[0].actual
+    assert "security group" in findings[0].actual
+
+
+@mock_aws
 def test_s3_public_access_block_drift():
     s3 = boto3.client("s3", region_name="us-east-1")
     bucket = "my-test-bucket-terradrift"
