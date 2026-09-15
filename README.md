@@ -57,11 +57,15 @@ Exits with status `1` if any high-severity drift is found — plug it straight i
 
 | Resource | Detects |
 |---|---|
-| `aws_security_group` | Ingress rules added or removed outside Terraform — flags `0.0.0.0/0` rules as high severity |
+| `aws_security_group` | Ingress rules added or removed outside Terraform — CIDR, IPv6, security-group references, and prefix lists all covered; flags `0.0.0.0/0` rules as high severity |
 | `aws_s3_bucket_public_access_block` | Any of the four block-public settings drifted from what Terraform expects |
+| `aws_s3_bucket_versioning` | Versioning silently disabled outside Terraform |
+| `aws_s3_bucket_server_side_encryption_configuration` | Default encryption removed or changed outside Terraform |
 | `aws_iam_role` | Trust (assume-role) policy differs from state — catches privilege-escalation-shaped drift that a permissions-only review misses |
+| `aws_db_instance` | RDS flipped to publicly accessible, or storage encryption doesn't match state |
+| `aws_cloudtrail` | Trail exists but logging was stopped outside Terraform — invisible to `terraform plan`, and the one finding that undermines your ability to investigate every other finding here |
 
-More resource types are a natural extension — see `Contributing` below. The scope is intentionally narrow: three checks done well, not fifty done shallowly.
+More resource types are a natural extension — see `Contributing` below. Each check is chosen because it's a class of drift that's silent (no application symptom, no `terraform plan` diff) and genuinely dangerous — not because it's easy to add.
 
 ## Why not driftctl?
 

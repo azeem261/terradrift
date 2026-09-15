@@ -7,7 +7,11 @@
       "Action": [
         "ec2:DescribeSecurityGroups",
         "s3:GetPublicAccessBlock",
+        "s3:GetBucketVersioning",
+        "s3:GetEncryptionConfiguration",
         "iam:GetRole",
+        "rds:DescribeDBInstances",
+        "cloudtrail:GetTrailStatus",
         "sts:GetCallerIdentity"
       ],
       "Resource": "*"

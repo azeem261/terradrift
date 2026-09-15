@@ -1,5 +1,5 @@
 name: "terradrift — Terraform Drift Detection"
-description: "Detect drift between Terraform state and live AWS resources (security groups, S3 public access, IAM trust policies). A maintained, open-source alternative to driftctl."
+description: "Detect drift between Terraform state and live AWS resources — security groups, S3 public access/versioning/encryption, IAM trust policies, RDS exposure/encryption, CloudTrail logging. A maintained, open-source alternative to driftctl."
 author: "Muhammad Azeem Sarwar"
 
 branding:
