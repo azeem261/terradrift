@@ -1,0 +1,50 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<title>Terradrift Report</title>
+<style>
+  body { background:#0a0e12; color:#e7edf2; font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif; margin:0; padding:40px 32px 64px; }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 1.9rem; margin: 0 0 6px; }
+  .meta { color:#8b96a3; font-family: Menlo, Consolas, monospace; font-size: 0.85rem; margin-bottom: 28px; }
+  .totals { display:flex; gap:14px; margin-bottom: 32px; flex-wrap: wrap; }
+  .tile { background:#11161c; border:1px solid #26303a; border-radius:4px; padding:16px 20px; min-width: 140px; }
+  .tile .label { font-family: Menlo, Consolas, monospace; font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:#6d7f8f; }
+  .tile .value { font-family: Menlo, Consolas, monospace; font-size:1.6rem; font-weight:600; margin-top:6px; }
+  .tile.high .value { color:#f2545a; }
+  .tile.medium .value { color:#f2a541; }
+  .tile.low .value { color:#4fd8c4; }
+  table { width:100%; border-collapse: collapse; font-size: 0.85rem; }
+  th { text-align:left; font-family: Menlo, Consolas, monospace; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:#6d7f8f; padding: 10px 12px; border-bottom: 1px solid #26303a; }
+  td { padding: 10px 12px; border-bottom: 1px solid #1a2129; vertical-align: top; }
+  .mono { font-family: Menlo, Consolas, monospace; font-size:0.8rem; }
+  .muted { color:#8b96a3; }
+  .sev { font-family: Menlo, Consolas, monospace; font-size:0.72rem; text-transform:uppercase; padding:2px 8px; border-radius:3px; }
+  .sev-high { background: rgba(242,84,90,0.15); color:#f2545a; }
+  .sev-medium { background: rgba(242,165,65,0.15); color:#f2a541; }
+  .sev-low { background: rgba(79,216,196,0.15); color:#4fd8c4; }
+  footer { margin-top: 40px; color:#55636f; font-size:0.78rem; font-family: Menlo, Consolas, monospace; }
+</style></head>
+<body><div class="wrap">
+  <h1>Terradrift Report</h1>
+  <div class="meta">generated 2026-09-15 09:13 UTC</div>
+
+  <div class="totals">
+    <div class="tile"><div class="label">Findings</div><div class="value">5</div></div>
+    <div class="tile high"><div class="label">High</div><div class="value">3</div></div>
+    <div class="tile medium"><div class="label">Medium</div><div class="value">2</div></div>
+    <div class="tile low"><div class="label">Low</div><div class="value">0</div></div>
+  </div>
+
+  <table>
+    <thead><tr><th>Severity</th><th>Resource</th><th>Type</th><th>Field</th><th>Expected (state)</th><th>Actual (live)</th></tr></thead>
+    <tbody>
+      <tr><td><span class="sev sev-high">high</span></td><td class="mono">aws_security_group.database</td><td class="mono">aws_security_group</td><td>ingress</td><td class="mono">(not in Terraform state)</td><td class="mono">tcp:5432-5432 from 0.0.0.0/0</td></tr>
+<tr><td><span class="sev sev-high">high</span></td><td class="mono">aws_s3_bucket_public_access_block.uploads</td><td class="mono">aws_s3_bucket_public_access_block</td><td>block_public_acls</td><td class="mono">True</td><td class="mono">False</td></tr>
+<tr><td><span class="sev sev-high">high</span></td><td class="mono">aws_iam_role.ci_deploy</td><td class="mono">aws_iam_role</td><td>assume_role_policy</td><td class="mono">{&#x27;trusted&#x27;: &#x27;github-actions-only&#x27;}</td><td class="mono">{&#x27;trusted&#x27;: &#x27;github-actions + unknown-external-account&#x27;}</td></tr>
+<tr><td><span class="sev sev-medium">medium</span></td><td class="mono">aws_security_group.web</td><td class="mono">aws_security_group</td><td>ingress</td><td class="mono">tcp:8080-8080 from 10.0.0.0/16</td><td class="mono">(missing from live AWS)</td></tr>
+<tr><td><span class="sev sev-medium">medium</span></td><td class="mono">aws_s3_bucket_public_access_block.logs</td><td class="mono">aws_s3_bucket_public_access_block</td><td>restrict_public_buckets</td><td class="mono">True</td><td class="mono">False</td></tr>
+    </tbody>
+  </table>
+
+  <footer>terradrift &#8212; compares Terraform state against live AWS. Not affiliated with HashiCorp or driftctl/Snyk.</footer>
+</div></body></html>

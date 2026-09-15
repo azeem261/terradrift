@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "terradrift"
+version = "0.1.0"
+description = "Detect drift between Terraform state and live AWS resources — a free, open-source driftctl alternative"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Muhammad Azeem Sarwar" }]
+keywords = ["terraform", "drift-detection", "aws", "devops", "sre", "infrastructure-as-code", "driftctl"]
+dependencies = ["boto3>=1.34"]
+
+[project.scripts]
+terradrift = "terradrift.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/azeem261/terradrift"
+Issues = "https://github.com/azeem261/terradrift/issues"
+
+[tool.setuptools.packages.find]
+include = ["terradrift*"]

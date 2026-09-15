@@ -1,0 +1,72 @@
+name: "terradrift — Terraform Drift Detection"
+description: "Detect drift between Terraform state and live AWS resources (security groups, S3 public access, IAM trust policies). A maintained, open-source alternative to driftctl."
+author: "Muhammad Azeem Sarwar"
+
+branding:
+  icon: "shield"
+  color: "green"
+
+inputs:
+  terraform-dir:
+    description: "Directory to run `terraform show -json` in."
+    required: false
+    default: "."
+  region:
+    description: "AWS region to check live resources in."
+    required: true
+  html-report:
+    description: "Path to write an HTML report to. Leave empty to skip."
+    required: false
+    default: ""
+  slack-webhook-url:
+    description: "Slack incoming webhook URL. Leave empty to skip Slack notification."
+    required: false
+    default: ""
+  fail-on-high:
+    description: "Fail this step if any high-severity drift is found."
+    required: false
+    default: "true"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install terradrift
+      shell: bash
+      run: pip install terradrift
+
+    - name: Export Terraform state
+      shell: bash
+      working-directory: ${{ inputs.terraform-dir }}
+      run: terraform show -json > "${{ runner.temp }}/terradrift-state.json"
+
+    - name: Run terradrift
+      id: terradrift
+      shell: bash
+      run: |
+        set +e
+        if [ -n "${{ inputs.html-report }}" ]; then
+          terradrift --state-json "${{ runner.temp }}/terradrift-state.json" --region "${{ inputs.region }}" --html "${{ inputs.html-report }}"
+        else
+          terradrift --state-json "${{ runner.temp }}/terradrift-state.json" --region "${{ inputs.region }}"
+        fi
+        echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+
+    - name: Notify Slack
+      if: inputs.slack-webhook-url != ''
+      shell: bash
+      run: |
+        python "${{ github.action_path }}/scripts/notify_slack.py" \
+          --state-json "${{ runner.temp }}/terradrift-state.json" \
+          --region "${{ inputs.region }}" \
+          --slack-webhook-url "${{ inputs.slack-webhook-url }}" \
+          --context-label "${{ github.repository }}@${{ github.ref_name }}"
+
+    - name: Fail on high-severity drift
+      if: inputs.fail-on-high == 'true'
+      shell: bash
+      run: exit ${{ steps.terradrift.outputs.exit_code }}
